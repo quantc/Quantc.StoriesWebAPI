@@ -15,7 +15,7 @@ namespace Quantc.StoriesWebAPI.Controllers
             _storyService = storyService;
         }
 
-        [ResponseCache(Duration = 1800, Location = ResponseCacheLocation.Any, 
+        [ResponseCache(Duration = 600, Location = ResponseCacheLocation.Any, 
             VaryByQueryKeys = new string[] { "count" })]
         [HttpGet(Name = "Get Best Stories")]
         public async Task<ActionResult<IEnumerable<StoryModel>>> Get(int count)

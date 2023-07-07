@@ -1,25 +1,25 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Quantc.StoriesWebAPI.Model
 {
     public class StoryModel
     {
-        [JsonPropertyName("title")]
+        [JsonProperty("title")]
         public string Title { get; set; }
 
-        [JsonPropertyName("url")]
+        [JsonProperty("url")]
         public string? URI { get; set; }
 
-        [JsonPropertyName("by")]
+        [JsonProperty("by")]
         public string? PostedBy { get; set; }
 
-        [JsonPropertyName("time")]
-        public long Time { get; set; }
+        [JsonProperty("time")]
+        public DateTime Time { get; set; }
 
-        [JsonPropertyName("score")]
+        [JsonProperty("score")]
         public int Score { get; set; }
 
-        [JsonPropertyName("descendants")]
+        [JsonProperty("descendants")]
         public int CommentCount { get; set; }
     }
 }
