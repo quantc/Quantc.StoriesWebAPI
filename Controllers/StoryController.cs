@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Quantc.StoriesWebAPI.Model;
+using Quantc.StoriesWebAPI.Services;
 
 namespace Quantc.StoriesWebAPI.Controllers
 {
@@ -7,19 +8,19 @@ namespace Quantc.StoriesWebAPI.Controllers
     [Route("[controller]")]
     public class StoryController : ControllerBase
     {
-        private readonly ILogger<StoryController> _logger;
+        private readonly StoryService _storyService;
 
-        public StoryController(ILogger<StoryController> logger)
+        public StoryController(StoryService storyService)
         {
-            _logger = logger;
+            _storyService = storyService;
         }
 
         [HttpGet(Name = "Get Best Stories")]
-        public ActionResult<IEnumerable<StoryModel>> Get()
+        public async Task<ActionResult<IEnumerable<StoryModel>>> Get(int count)
         {
-            var model = new StoryModel();
+            var result = await _storyService.GetBestStoriesAsync(count);
 
-            return Ok(new StoryModel[] { model });
+            return Ok(result);
         }
     }
 }
