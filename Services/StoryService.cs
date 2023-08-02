@@ -3,13 +3,14 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Quantc.StoriesWebAPI.Common;
 using Quantc.StoriesWebAPI.Model;
+using System.Collections.Concurrent;
 
 namespace Quantc.StoriesWebAPI.Services
 {
     public class StoryService
     {
         private readonly HttpClient _httpClient;
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
 
         public StoryService(HttpClient httpClient, IMemoryCache cache)
         {
@@ -22,23 +23,23 @@ namespace Quantc.StoriesWebAPI.Services
             var storiesIds = await _httpClient.GetFromJsonAsync<IEnumerable<int>>(
                 UriSpace.BestStories);
 
-            List<StoryModel> stories = new();
+            ConcurrentBag<StoryModel> stories = new();
             if (storiesIds == null)
             {
                 return null;
             }
 
-            foreach (int storyId in storiesIds)
+            await Parallel.ForEachAsync(storiesIds, async (storyId, cancellationToken) =>
             {
                 if (_cache.TryGetValue(storyId, out StoryModel story))
-                { 
+                {
                     if (story != null)
                         stories.Add(story);
                 }
                 else
                 {
-                    var response = await _httpClient.GetAsync(string.Format(UriSpace.SingleStory, storyId));
-                    var responseContent = response.Content.ReadAsStringAsync().Result;
+                    var response = await _httpClient.GetAsync(string.Format(UriSpace.SingleStory, storyId), cancellationToken);
+                    var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
                     response.EnsureSuccessStatusCode();
 
                     story = JsonConvert.DeserializeObject<StoryModel>(responseContent, new UnixDateTimeConverter());
@@ -55,7 +56,7 @@ namespace Quantc.StoriesWebAPI.Services
                         stories.Add(story);
                     }
                 }
-            }
+            });
 
             var ordered = stories.OrderByDescending(x => x.Score).Take(count).ToList();
             return ordered;

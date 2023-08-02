@@ -30,3 +30,6 @@ obj
 FileContentIndex
 DesignTimeBuild
 v17
+/bin
+/obj
+/.vs
